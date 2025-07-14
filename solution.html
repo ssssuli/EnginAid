@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnginAid Solution</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Inter font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5; /* Light gray background */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+        }
+        .app-container {
+            width: 100%;
+            max-width: 400px; /* Typical mobile width */
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* Ensure it takes full height on small screens */
+        }
+        .header {
+            background-color: #fff;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .header .logo {
+            height: 40px; /* Adjust logo size */
+        }
+        .nav-bar {
+            background-color: #f7e6e9; /* Light pink background */
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-around;
+            padding: 0.75rem 0;
+            position: sticky;
+            bottom: 0;
+            width: 100%;
+            max-width: 400px; /* Match app-container width */
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+            border-top-left-radius: 20px; /* Rounded top corners */
+            border-top-right-radius: 20px;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #b76e79; /* Muted pink color */
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .nav-item.active {
+            color: #8b3a4a; /* Darker pink for active */
+        }
+        .nav-item i {
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+        .content-area {
+            flex-grow: 1; /* Allows content to take available space */
+            padding: 1rem;
+            overflow-y: auto; /* Enable scrolling for content */
+            padding-bottom: 80px; /* Space for fixed nav bar */
+        }
+        .card {
+            background-color: #f9f9f9;
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .solution-card {
+            background-color: #fff;
+            border-radius: 1rem;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .solution-card h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: #333;
+        }
+        .solution-card p {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #555;
+            margin-bottom: 1rem;
+        }
+        .solution-card table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+        }
+        .solution-card th, .solution-card td {
+            border: 1px solid #ddd;
+            padding: 0.5rem;
+            text-align: left;
+        }
+        .solution-card th {
+            background-color: #f0f0f0;
+            font-weight: 600;
+        }
+        .solution-card .meta-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #777;
+            margin-top: 1rem;
+        }
+        .solution-card .meta-info .user {
+            display: flex;
+            align-items: center;
+        }
+        .solution-card .meta-info .user img {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        .comment-section h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        .comment-card {
+            background-color: #fff;
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .comment-card .comment-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .comment-card .comment-header img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 0.75rem;
+        }
+        .comment-card .comment-header span {
+            font-weight: 600;
+            color: #333;
+        }
+        .comment-card p {
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.4;
+            margin-bottom: 0.75rem;
+        }
+        .comment-card .comment-actions {
+            display: flex;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #777;
+        }
+        .comment-card .comment-actions i {
+            margin-right: 0.25rem;
+        }
+        .comment-card .comment-actions span {
+            margin-right: 1rem;
+        }
+        .add-comment-area textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            resize: vertical;
+            margin-bottom: 0.5rem;
+        }
+        .add-comment-area button {
+            background-color: #b76e79;
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.2s ease;
+        }
+        .add-comment-area button:hover {
+            background-color: #8b3a4a;
+        }
+
+        /* Pop-up styles */
+        .popup-overlay, .render-popup-overlay, .table-popup-overlay, .solution-text-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .popup-overlay.show, .render-popup-overlay.show, .table-popup-overlay.show, .solution-text-popup-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .popup-content {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 1rem;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            max-width: 80%;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .render-popup-content, .table-popup-content, .solution-text-popup-content {
+            background-color: #fff;
+            padding: 1rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            max-width: 90%;
+            width: 500px; /* Max width for popups */
+            height: auto; /* Auto height for table and text */
+            max-height: 90%; /* Max height for content */
+            overflow-y: auto; /* Scroll for content */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .popup-overlay.show .popup-content, .render-popup-overlay.show .render-popup-content, .table-popup-overlay.show .table-popup-content, .solution-text-popup-overlay.show .solution-text-popup-content {
+            transform: scale(1);
+        }
+        .popup-content p {
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+        .popup-content button, .render-popup-content button, .table-popup-content button, .solution-text-popup-content button {
+            background-color: #b76e79;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s ease;
+        }
+        .popup-content button:hover, .render-popup-content button:hover, .table-popup-content button:hover, .solution-text-popup-content button:hover {
+            background-color: #8b3a4a;
+        }
+        #threeJsCanvas {
+            width: 100%;
+            height: calc(100% - 40px); /* Adjust height to make space for close button */
+            display: block;
+            background-color: #f0f0f0;
+            border-radius: 0.5rem;
+            margin-bottom: 10px;
+        }
+        .render-popup-content .close-button, .table-popup-content .close-button, .solution-text-popup-content .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #333;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+        .render-popup-content .close-button:hover, .table-popup-content .close-button:hover, .solution-text-popup-content .close-button:hover {
+            background-color: #eee;
+        }
+        /* Table specific styles within popup */
+        .table-popup-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem; /* Add some space from title */
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+        }
+        .table-popup-content th, .table-popup-content td {
+            border: 1px solid #ddd;
+            padding: 0.5rem;
+            text-align: left;
+        }
+        .table-popup-content th {
+            background-color: #f0f0f0;
+            font-weight: 600;
+        }
+        /* Solution text popup specific styles */
+        .solution-text-popup-content p {
+            text-align: left;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <i class="fas fa-arrow-left text-gray-600 text-xl cursor-pointer"></i>
+            <img src="https://placehold.co/150x40/f7e6e9/b76e79?text=ENGINAID" alt="EnginAid Logo" class="logo">
+            <i class="fas fa-cog text-gray-600 text-xl cursor-pointer"></i>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="content-area">
+            <h1 class="text-2xl font-bold mb-4 text-gray-800">Solution</h1>
+            <p class="text-sm text-gray-600 mb-4">Submitted by: <span class="font-semibold">lauchunlerm03</span></p>
+
+            <!-- Solution Details Card -->
+            <div class="solution-card">
+                <!-- Button to view the table -->
+                <button id="viewTableBtn" class="w-full bg-gray-200 text-gray-800 py-2 rounded-full text-md font-semibold shadow-sm hover:bg-gray-300 transition mb-4">
+                    View Specification Table
+                </button>
+
+                <h2>Solution:</h2>
+                <p id="truncatedSolutionText" class="text-gray-700">Gather the necessary materials such as asphalt mix, gravel, bitumen or tack coat, and crack sealant, along with tools like a shovel, wheelbarrow, compactor. Clean out loose debris and water, trim the edges for better adhesion, apply a bitumen tack coat, fill the hole with asphalt, and compact the surface firmly. I've included the proper ratios for an asphalt mixture allowed by the government. For cracks, clean the affected area and fill it with rubberized crack sealant, allowing it to cure before reopening the road. If the road is gravel and shows signs of erosion or unevenness, regrade the surface, fill low spots with gravel, shape the road with a crown to enable drainage, and compact it for stability. In erosion-prone areas, rebuild the road base with compacted fill and install proper drainage such as side ditches or culverts to prevent future damage.</p>
+                <button id="readMoreBtn" class="text-blue-500 hover:underline text-sm mt-2">Read More</button>
+
+                <div class="meta-info">
+                    <div class="flex items-center">
+                        <i class="far fa-thumbs-up mr-1 cursor-pointer"></i><span>10 likes</span>
+                        <i class="far fa-thumbs-down ml-3 mr-1 cursor-pointer"></i><span>3 dislikes</span>
+                    </div>
+                    <div class="text-right">
+                        <p>AI Feasibility score: 9/10</p>
+                        <p>Estimated cost: RM500</p>
+                        <div class="user mt-1 justify-end">
+                            <img src="https://placehold.co/24x24/b76e79/ffffff?text=U" alt="User Avatar">
+                            <span>lauchunlerm03</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View 3D Render Solution Button -->
+            <div class="mt-4 mb-4">
+                <button id="view3DRenderBtn" class="w-full bg-blue-500 text-white py-3 rounded-full text-lg font-semibold shadow-lg hover:bg-blue-600 transition">
+                    View 3D Render Solution
+                </button>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="comment-section mt-8">
+                <h2>Comments</h2>
+                <div class="comment-card">
+                    <div class="comment-header">
+                        <img src="https://placehold.co/32x32/8b3a4a/ffffff?text=Z" alt="User Avatar">
+                        <span>zheesheshmalboro69</span>
+                    </div>
+                    <p>Great idea lauchunlerm03! everything is clear alongside the Malaysian specification for Road works, however it is outdated.</p>
+                    <p>Hope the authorities act on it fast !</p>
+                    <div class="comment-actions">
+                        <i class="far fa-thumbs-up mr-1 cursor-pointer"></i><span>5 likes</span>
+                        <i class="far fa-thumbs-down ml-3 mr-1 cursor-pointer"></i><span>0 dislikes</span>
+                    </div>
+                </div>
+                <!-- Add New Comment Area -->
+                <div class="add-comment-area mt-4">
+                    <textarea placeholder="Add your comment here..."></textarea>
+                    <button>Post Comment</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Navigation Bar -->
+        <nav class="nav-bar">
+            <div class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-map-marked-alt"></i>
+                <span>Map</span>
+            </div>
+            <div class="nav-item active">
+                <i class="fas fa-plus-circle text-2xl"></i>
+                <span>Post</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-folder-open"></i>
+                <span>Projects</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 3D Render Pop-up Overlay -->
+    <div id="renderPopupOverlay" class="render-popup-overlay">
+        <div class="render-popup-content">
+            <button class="close-button" id="closeRenderPopupBtn">&times;</button>
+            <canvas id="threeJsCanvas"></canvas>
+        </div>
+    </div>
+
+    <!-- Table Pop-up Overlay -->
+    <div id="tablePopupOverlay" class="table-popup-overlay">
+        <div class="table-popup-content">
+            <button class="close-button" id="closeTablePopupBtn">&times;</button>
+            <h2 class="text-xl font-bold text-gray-800">Specification Table</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sieve Designation</th>
+                        <th>% Passing</th>
+                        <th>Specification Limits JKR</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>20.0 mm</td><td>100</td><td>100</td></tr>
+                    <tr><td>14.0 mm</td><td>90-100</td><td>90-100</td></tr>
+                    <tr><td>10.0 mm</td><td>68-86</td><td>68-86</td></tr>
+                    <tr><td>5.0 mm</td><td>48-74</td><td>48-74</td></tr>
+                    <tr><td>2.36 mm</td><td>30-55</td><td>30-55</td></tr>
+                    <tr><td>1.18 mm</td><td>20-40</td><td>20-40</td></tr>
+                    <tr><td>600 µm</td><td>10-25</td><td>10-25</td></tr>
+                    <tr><td>300 µm</td><td>5-15</td><td>5-15</td></tr>
+                    <tr><td>150 µm</td><td>2-10</td><td>2-10</td></tr>
+                    <tr><td>75 µm</td><td>4-8</td><td>4-8</td></tr>
+                    <tr><td>Filler OPC %</td><td>4.8%</td><td>-</td></tr>
+                </tbody>
+            </table>
+            <p class="text-xs text-gray-500 mt-2">Source: Malaysian Standard for Road Works, MS 2000:2014</p>
+        </div>
+    </div>
+
+    <!-- Solution Text Pop-up Overlay -->
+    <div id="solutionTextPopupOverlay" class="solution-text-popup-overlay">
+        <div class="solution-text-popup-content">
+            <button class="close-button" id="closeSolutionTextPopupBtn">&times;</button>
+            <h2 class="text-xl font-bold text-gray-800 mb-2">Full Solution Details</h2>
+            <p id="fullSolutionText" class="text-gray-700"></p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const view3DRenderBtn = document.getElementById('view3DRenderBtn');
+            const renderPopupOverlay = document.getElementById('renderPopupOverlay');
+            const closeRenderPopupBtn = document.getElementById('closeRenderPopupBtn');
+            const threeJsCanvas = document.getElementById('threeJsCanvas');
+
+            const viewTableBtn = document.getElementById('viewTableBtn');
+            const tablePopupOverlay = document.getElementById('tablePopupOverlay');
+            const closeTablePopupBtn = document.getElementById('closeTablePopupBtn');
+
+            const readMoreBtn = document.getElementById('readMoreBtn');
+            const solutionTextPopupOverlay = document.getElementById('solutionTextPopupOverlay');
+            const closeSolutionTextPopupBtn = document.getElementById('closeSolutionTextPopupBtn');
+            const truncatedSolutionTextElement = document.getElementById('truncatedSolutionText');
+            const fullSolutionTextElement = document.getElementById('fullSolutionText');
+
+            // Store the full solution text
+            const fullSolutionContent = `Gather the necessary materials such as asphalt mix, gravel, bitumen or tack coat, and crack sealant, along with tools like a shovel, wheelbarrow, compactor. Clean out loose debris and water, trim the edges for better adhesion, apply a bitumen tack coat, fill the hole with asphalt, and compact the surface firmly. I've included the proper ratios for an asphalt mixture allowed by the government. For cracks, clean the affected area and fill it with rubberized crack sealant, allowing it to cure before reopening the road. If the road is gravel and shows signs of erosion or unevenness, regrade the surface, fill low spots with gravel, shape the road with a crown to enable drainage, and compact it for stability. In erosion-prone areas, rebuild the road base with compacted fill and install proper drainage such as side ditches or culverts to prevent future damage.`;
+
+            // Truncate the solution text for initial display
+            const truncationLength = 150; // Adjust as needed
+            if (fullSolutionContent.length > truncationLength) {
+                truncatedSolutionTextElement.textContent = fullSolutionContent.substring(0, truncationLength) + '...';
+                readMoreBtn.style.display = 'inline'; // Show the button
+            } else {
+                truncatedSolutionTextElement.textContent = fullSolutionContent;
+                readMoreBtn.style.display = 'none'; // Hide the button if not needed
+            }
+            // Set the full text in the popup
+            fullSolutionTextElement.textContent = fullSolutionContent;
+
+
+            // Three.js setup for 3D render
+            let scene, camera, renderer, drainageCover;
+            let isDragging = false;
+            let previousMousePosition = {
+                x: 0,
+                y: 0
+            };
+
+            function initThreeJS() {
+                // Scene
+                scene = new THREE.Scene();
+                scene.background = new THREE.Color(0xf0f0f0); // Light gray background for the 3D scene
+
+                // Camera
+                camera = new THREE.PerspectiveCamera(75, threeJsCanvas.clientWidth / threeJsCanvas.clientHeight, 0.1, 1000);
+                camera.position.z = 2;
+
+                // Renderer
+                renderer = new THREE.WebGLRenderer({ canvas: threeJsCanvas, antialias: true });
+                renderer.setSize(threeJsCanvas.clientWidth, threeJsCanvas.clientHeight);
+                renderer.setPixelRatio(window.devicePixelRatio); // For better quality on high-DPI screens
+
+                // Lighting
+                const ambientLight = new THREE.AmbientLight(0x404040, 2); // Soft white light
+                scene.add(ambientLight);
+
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+                directionalLight.position.set(1, 1, 1).normalize();
+                scene.add(directionalLight);
+
+                // Drainage Cover Model (simple cylinder for demonstration)
+                // You can replace this with a more complex geometry if needed
+                const geometry = new THREE.CylinderGeometry(0.8, 0.8, 0.1, 32); // RadiusTop, RadiusBottom, Height, RadialSegments
+                const material = new THREE.MeshStandardMaterial({ color: 0x555555, metalness: 0.7, roughness: 0.3 }); // Dark gray, metallic
+                drainageCover = new THREE.Mesh(geometry, material);
+                scene.add(drainageCover);
+
+                // Mouse interaction for rotation
+                threeJsCanvas.addEventListener('mousedown', onMouseDown);
+                threeJsCanvas.addEventListener('mouseup', onMouseUp);
+                threeJsCanvas.addEventListener('mousemove', onMouseMove);
+                threeJsCanvas.addEventListener('mouseleave', onMouseUp); // Stop dragging if mouse leaves canvas
+
+                // Touch interaction for rotation
+                threeJsCanvas.addEventListener('touchstart', onTouchStart, { passive: false });
+                threeJsCanvas.addEventListener('touchend', onTouchEnd, { passive: false });
+                threeJsCanvas.addEventListener('touchmove', onTouchMove, { passive: false });
+
+                // Handle window resize
+                window.addEventListener('resize', onWindowResize);
+
+                animate();
+            }
+
+            function animate() {
+                requestAnimationFrame(animate);
+                renderer.render(scene, camera);
+            }
+
+            function onWindowResize() {
+                // Update canvas size to match its parent container
+                const parent = threeJsCanvas.parentElement;
+                if (parent) {
+                    renderer.setSize(parent.clientWidth, parent.clientHeight - 40); // -40 for close button
+                    camera.aspect = (parent.clientWidth) / (parent.clientHeight - 40);
+                    camera.updateProjectionMatrix();
+                }
+            }
+
+            function onMouseDown(event) {
+                isDragging = true;
+                previousMousePosition = {
+                    x: event.clientX,
+                    y: event.clientY
+                };
+            }
+
+            function onMouseUp(event) {
+                isDragging = false;
+            }
+
+            function onMouseMove(event) {
+                if (!isDragging) return;
+
+                const deltaX = event.clientX - previousMousePosition.x;
+                const deltaY = event.clientY - previousMousePosition.y;
+
+                // Adjust rotation speed
+                const rotationSpeed = 0.005;
+
+                drainageCover.rotation.y += deltaX * rotationSpeed;
+                drainageCover.rotation.x += deltaY * rotationSpeed;
+
+                previousMousePosition = {
+                    x: event.clientX,
+                    y: event.clientY
+                };
+            }
+
+            function onTouchStart(event) {
+                if (event.touches.length === 1) {
+                    isDragging = true;
+                    previousMousePosition = {
+                        x: event.touches[0].clientX,
+                        y: event.touches[0].clientY
+                    };
+                }
+                event.preventDefault(); // Prevent scrolling
+            }
+
+            function onTouchEnd(event) {
+                isDragging = false;
+            }
+
+            function onTouchMove(event) {
+                if (!isDragging || event.touches.length !== 1) return;
+
+                const deltaX = event.touches[0].clientX - previousMousePosition.x;
+                const deltaY = event.touches[0].clientY - previousMousePosition.y;
+
+                const rotationSpeed = 0.005;
+
+                drainageCover.rotation.y += deltaX * rotationSpeed;
+                drainageCover.rotation.x += deltaY * rotationSpeed;
+
+                previousMousePosition = {
+                    x: event.touches[0].clientX,
+                    y: event.touches[0].clientY
+                };
+                event.preventDefault(); // Prevent scrolling
+            }
+
+            // Show 3D render pop-up
+            view3DRenderBtn.addEventListener('click', () => {
+                renderPopupOverlay.classList.add('show');
+                // Initialize Three.js only when the popup is shown
+                if (!scene) { // Only initialize once
+                    initThreeJS();
+                } else {
+                    // If already initialized, just ensure renderer size is correct
+                    onWindowResize();
+                }
+            });
+
+            // Hide 3D render pop-up
+            closeRenderPopupBtn.addEventListener('click', () => {
+                renderPopupOverlay.classList.remove('show');
+            });
+
+            // Optional: Hide 3D render pop-up if clicked outside the content
+            renderPopupOverlay.addEventListener('click', (event) => {
+                if (event.target === renderPopupOverlay) {
+                    renderPopupOverlay.classList.remove('show');
+                }
+            });
+
+            // Show Table pop-up
+            viewTableBtn.addEventListener('click', () => {
+                tablePopupOverlay.classList.add('show');
+            });
+
+            // Hide Table pop-up
+            closeTablePopupBtn.addEventListener('click', () => {
+                tablePopupOverlay.classList.remove('show');
+            });
+
+            // Optional: Hide Table pop-up if clicked outside the content
+            tablePopupOverlay.addEventListener('click', (event) => {
+                if (event.target === tablePopupOverlay) {
+                    tablePopupOverlay.classList.remove('show');
+                }
+            });
+
+            // Show Solution Text pop-up
+            readMoreBtn.addEventListener('click', () => {
+                solutionTextPopupOverlay.classList.add('show');
+            });
+
+            // Hide Solution Text pop-up
+            closeSolutionTextPopupBtn.addEventListener('click', () => {
+                solutionTextPopupOverlay.classList.remove('show');
+            });
+
+            // Optional: Hide Solution Text pop-up if clicked outside the content
+            solutionTextPopupOverlay.addEventListener('click', (event) => {
+                if (event.target === solutionTextPopupOverlay) {
+                    solutionTextPopupOverlay.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

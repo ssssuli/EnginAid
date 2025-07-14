@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnginAid App</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Inter font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5; /* Light gray background */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+        }
+        .app-container {
+            width: 100%;
+            max-width: 400px; /* Typical mobile width */
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* Ensure it takes full height on small screens */
+        }
+        .header {
+            background-color: #fff;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .header .logo {
+            height: 40px; /* Adjust logo size */
+        }
+        .nav-bar {
+            background-color: #f7e6e9; /* Light pink background */
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-around;
+            padding: 0.75rem 0;
+            position: sticky;
+            bottom: 0;
+            width: 100%;
+            max-width: 400px; /* Match app-container width */
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+            border-top-left-radius: 20px; /* Rounded top corners */
+            border-top-right-radius: 20px;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #b76e79; /* Muted pink color */
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .nav-item.active {
+            color: #8b3a4a; /* Darker pink for active */
+        }
+        .nav-item i {
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+        .search-bar {
+            padding: 0.75rem 1rem;
+            background-color: #fff;
+            border-bottom: 1px solid #eee;
+        }
+        .search-bar input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 9999px; /* Fully rounded */
+            background-color: #f9f9f9;
+            font-size: 0.9rem;
+        }
+        .content-area {
+            flex-grow: 1; /* Allows content to take available space */
+            padding: 1rem;
+            overflow-y: auto; /* Enable scrolling for content */
+            padding-bottom: 80px; /* Space for fixed nav bar */
+        }
+        .card {
+            background-color: #f9f9f9;
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .input-group {
+            margin-bottom: 1rem;
+        }
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        .input-group input[type="text"],
+        .input-group textarea,
+        .input-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            background-color: #fff;
+        }
+        .input-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 24px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #b76e79;
+        }
+        input:checked + .slider:before {
+            transform: translateX(16px);
+        }
+        .severity-slider-container {
+            display: flex;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+        .severity-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(to right, #4CAF50, #FFEB3B, #F44336); /* Green to Red */
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+            margin-left: 0.5rem;
+        }
+        .severity-slider:hover {
+            opacity: 1;
+        }
+        .severity-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border: 2px solid #b76e79;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+        .severity-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border: 2px solid #b76e79;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+
+        /* Pop-up styles */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .popup-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .popup-content {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 1rem;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            max-width: 80%;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .popup-overlay.show .popup-content {
+            transform: scale(1);
+        }
+        .popup-content p {
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+        .popup-content button {
+            background-color: #b76e79;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s ease;
+        }
+        .popup-content button:hover {
+            background-color: #8b3a4a;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <i class="fas fa-arrow-left text-gray-600 text-xl cursor-pointer"></i>
+            <img src="https://placehold.co/150x40/f7e6e9/b76e79?text=ENGINAID" alt="EnginAid Logo" class="logo">
+            <i class="fas fa-cog text-gray-600 text-xl cursor-pointer"></i>
+        </header>
+
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <div class="relative">
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input type="text" placeholder="Search EnginAid..." class="pl-10 pr-4">
+                <i class="fas fa-bars absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <main class="content-area">
+            <h1 class="text-2xl font-bold mb-4 text-gray-800">Create new post</h1>
+
+            <!-- Upload/Photo Card -->
+            <div class="card bg-gray-100 p-6 text-center border-2 border-dashed border-gray-300">
+                <i class="fas fa-cloud-upload-alt text-gray-400 text-4xl mb-3"></i>
+                <p class="text-gray-600 mb-4">Take a photo, upload a photo or browse your files <span class="text-blue-500 font-semibold cursor-pointer">here</span></p>
+                <div class="flex justify-center space-x-4">
+                    <button class="bg-red-400 text-white px-6 py-2 rounded-full flex items-center space-x-2 shadow-md hover:bg-red-500 transition">
+                        <i class="fas fa-file"></i>
+                        <span>Choose file</span>
+                    </button>
+                    <button class="bg-gray-400 text-white px-6 py-2 rounded-full flex items-center space-x-2 shadow-md hover:bg-gray-500 transition">
+                        <i class="fas fa-camera"></i>
+                        <span>Take a photo</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Description Input -->
+            <div class="input-group">
+                <label for="description">Description</label>
+                <textarea id="description" placeholder="Enter details about the issue here..."></textarea>
+            </div>
+
+            <!-- Location Input -->
+            <div class="input-group">
+                <label for="location">Location:</label>
+                <input type="text" id="location" placeholder="Enter location details here...">
+                <div class="flex items-center justify-between mt-2">
+                    <span class="text-gray-600 text-sm">Auto-detect location:</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="autoDetectLocation">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Severity Slider -->
+            <div class="input-group">
+                <label for="severity">Severity</label>
+                <div class="severity-slider-container">
+                    <input type="range" id="severity" min="0" max="10" value="5" class="severity-slider">
+                    <span id="severityValue" class="ml-2 text-gray-700 font-medium">5</span>
+                </div>
+            </div>
+
+            <!-- Issue Type Dropdown -->
+            <div class="input-group">
+                <label for="issueType">Issue type:</label>
+                <select id="issueType">
+                    <option value="">Please select</option>
+                    <option value="structural">Structural</option>
+                    <option value="drainage">Drainage</option>
+                    <option value="potholes">Potholes</option>
+                    <option value="lighting">Lighting</option>
+                    <option value="roadworks">Roadworks</option>
+                </select>
+            </div>
+
+            <!-- Date Input -->
+            <div class="input-group">
+                <label for="date">Date:</label>
+                <input type="date" id="date">
+            </div>
+
+            <!-- AI Feasibility Toggle -->
+            <div class="input-group">
+                <div class="flex items-center justify-between">
+                    <label for="aiFeasibility" class="mb-0">AI Feasibility</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="aiFeasibility">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Post to Issues Button -->
+            <div class="mt-8 mb-4">
+                <button id="postToIssuesBtn" class="w-full bg-red-400 text-white py-3 rounded-full text-lg font-semibold shadow-lg hover:bg-red-500 transition">
+                    Post to Issues
+                </button>
+            </div>
+        </main>
+
+        <!-- Navigation Bar -->
+        <nav class="nav-bar">
+            <div class="nav-item active">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-map-marked-alt"></i>
+                <span>Map</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-plus-circle text-2xl"></i>
+                <span>Post</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-folder-open"></i>
+                <span>Projects</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Pop-up Overlay -->
+    <div id="popupOverlay" class="popup-overlay">
+        <div class="popup-content">
+            <p>Thank you, you will be notified when a solution gets posted</p>
+            <button id="closePopupBtn">OK</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get elements
+            const postToIssuesBtn = document.getElementById('postToIssuesBtn');
+            const popupOverlay = document.getElementById('popupOverlay');
+            const closePopupBtn = document.getElementById('closePopupBtn');
+            const severitySlider = document.getElementById('severity');
+            const severityValue = document.getElementById('severityValue');
+
+            // Update severity value display
+            severitySlider.addEventListener('input', () => {
+                severityValue.textContent = severitySlider.value;
+            });
+
+            // Function to play a more gratifying ding sound
+            function playDingSound() {
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const now = audioContext.currentTime;
+
+                    // First oscillator (main ding)
+                    const oscillator1 = audioContext.createOscillator();
+                    oscillator1.type = 'sine';
+                    oscillator1.frequency.setValueAtTime(880, now); // A5 note
+
+                    const gainNode1 = audioContext.createGain();
+                    gainNode1.gain.setValueAtTime(0, now);
+                    gainNode1.gain.linearRampToValueAtTime(0.7, now + 0.03); // Quicker attack, higher peak
+                    gainNode1.gain.exponentialRampToValueAtTime(0.001, now + 0.5); // Longer decay
+
+                    oscillator1.connect(gainNode1);
+                    gainNode1.connect(audioContext.destination);
+
+                    oscillator1.start(now);
+                    oscillator1.stop(now + 0.5); // Play for 0.5 seconds
+
+                    // Second oscillator (for a richer, chime-like effect)
+                    const oscillator2 = audioContext.createOscillator();
+                    oscillator2.type = 'sine';
+                    oscillator2.frequency.setValueAtTime(1320, now + 0.05); // E6 note, slightly delayed
+
+                    const gainNode2 = audioContext.createGain();
+                    gainNode2.gain.setValueAtTime(0, now + 0.05);
+                    gainNode2.gain.linearRampToValueAtTime(0.4, now + 0.08); // Quicker attack, lower peak
+                    gainNode2.gain.exponentialRampToValueAtTime(0.001, now + 0.6); // Longer decay
+
+                    oscillator2.connect(gainNode2);
+                    gainNode2.connect(audioContext.destination);
+
+                    oscillator2.start(now + 0.05); // Start slightly after the first
+                    oscillator2.stop(now + 0.6); // Play for 0.55 seconds
+
+                } catch (e) {
+                    console.error("Error playing sound:", e);
+                    // Fallback or silent failure if AudioContext is not supported
+                }
+            }
+
+            // Show pop-up and play sound on button click
+            postToIssuesBtn.addEventListener('click', () => {
+                popupOverlay.classList.add('show');
+                playDingSound();
+            });
+
+            // Hide pop-up on OK button click
+            closePopupBtn.addEventListener('click', () => {
+                popupOverlay.classList.remove('show');
+            });
+
+            // Optional: Hide pop-up if clicked outside the content
+            popupOverlay.addEventListener('click', (event) => {
+                if (event.target === popupOverlay) {
+                    popupOverlay.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
